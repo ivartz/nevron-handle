@@ -1,1 +1,17 @@
+# Ignore swp file from vim having file open
 .nevron-handle.sh.swp
+
+# Ignore Terraform build artifacts and state in tf/ directory
+tf/.terraform/
+tf/*.tfstate
+tf/*.tfstate.*
+tf/.terraform.lock.hcl # Only if you want to pin per environment or use automation
+
+# Ignore Terraform plans and sensitive variable files
+tf/*.tfplan
+tf/*.tfvars
+tf/*.tfvars.json
+tf/.terraform.tfstate.lock.info
+
+# Optional: log or debug files if you create them
+tf/*.log
