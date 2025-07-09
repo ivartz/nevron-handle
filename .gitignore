@@ -1,17 +1,41 @@
 # Ignore swp file from vim having file open
 .nevron-handle.sh.swp
 
-# Ignore Terraform build artifacts and state in tf/ directory
-tf/.terraform/
-tf/*.tfstate
-tf/*.tfstate.*
-tf/.terraform.lock.hcl # Only if you want to pin per environment or use automation
+# Ignore all Terraform build artifacts and sensitive files in all environments
+tf/envs/**/.terraform/
+tf/envs/**/*.tfstate
+tf/envs/**/*.tfstate.*
+tf/envs/**/*.tfvars
+tf/envs/**/*.tfvars.json
+tf/envs/**/*.tfplan
+tf/envs/**/.terraform.tfstate.lock.info
 
-# Ignore Terraform plans and sensitive variable files
-tf/*.tfplan
-tf/*.tfvars
-tf/*.tfvars.json
-tf/.terraform.tfstate.lock.info
+# Optional: ignore lock files per environment
+# Remove this line if you want to commit .terraform.lock.hcl per env
+tf/envs/**/.terraform.lock.hcl
 
-# Optional: log or debug files if you create them
-tf/*.log
+# Ignore module-level build artifacts (if used during init)
+tf/modules/**/.terraform/
+tf/modules/**/*.tfstate
+tf/modules/**/*.tfstate.*
+tf/modules/**/*.tfplan
+tf/modules/**/.terraform.tfstate.lock.info
+
+# Optional: ignore .terraform.lock.hcl in modules (if any)
+tf/modules/**/.terraform.lock.hcl
+
+# Ignore logs or debug artifacts
+tf/**/**/*.log
+
+# --- Explicitly track these files ---
+
+# Always track actual Terraform configurations and documentation
+!tf/**/*.tf
+!tf/**/*.md
+!tf/**/*.tfvars.example
+!tf/**/*.hcl
+!tf/**/.terraform.lock.hcl  # Track if you removed ignore above
+
+# Optional: allow .gitkeep if you use it to preserve empty folders
+!tf/**/.gitkeep
+
