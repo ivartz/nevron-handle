@@ -15,6 +15,12 @@ readarray -t TOOLBOX <<EOF
 wake_and_wait
 unshelve_vms
 start_vms
+tf_plan_dev
+tf_plan_prod
+tf_apply_dev
+tf_apply_prod
+tf_destroy_dev
+tf_destroy_prod
 run_tasks_on_vms
 stop_vms
 snapshot_vms
@@ -134,6 +140,29 @@ start_vms() {
   done
 
   echo "All VMs are up."
+}
+
+tf_plan_dev() {
+  cd ~/Projects/nevron-handle/tf/envs/dev && terraform plan
+}
+
+tf_plan_prod() {
+  cd ~/Projects/nevron-handle/tf/envs/prod && terraform plan
+}
+
+tf_apply_dev() {
+  cd ~/Projects/nevron-handle/tf/envs/dev && terraform apply
+}
+
+tf_apply_prod() {
+  cd ~/Projects/nevron-handle/tf/envs/prod && terraform apply
+}
+
+tf_destroy_dev() {
+  cd ~/Projects/nevron-handle/tf/envs/dev && terraform destroy
+}
+tf_destroy_prod() {
+  cd ~/Projects/nevron-handle/tf/envs/prod && terraform destroy
 }
 
 wait_for_web_service() {
