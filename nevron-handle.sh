@@ -60,7 +60,7 @@ HYPERVISOR_HOSTNAMES=($2)
 PIPELINE=($3)
 
 # Most tools use non-admin openstack user
-source api/ivar-openrc
+source ~/api/ivar-openrc
 
 get_hypervisor_hostnames() {
   # TODO Policy to authorize ivar to do this
@@ -68,9 +68,9 @@ get_hypervisor_hostnames() {
   declare -A HOSTNAMES
   for VM in "${VM_NAMES[@]}"; do
     local ID=$(openstack server show "$VM" -f value -c id)
-    source api/admin-openrc
+    source ~/api/admin-openrc
     local NAME=$(openstack server show $ID -f value -c OS-EXT-SRV-ATTR:host)
-    source api/ivar-openrc
+    source ~/api/ivar-openrc
     # If None is returned, VM was not found
     # to be connected to a hypervisor..
     # -> VM is likely SHELVED_OFFLOADED
@@ -81,7 +81,7 @@ get_hypervisor_hostnames() {
 }
 
 # Infer hostnames from VM names
-if [ ${#HYPERVISOR_HOSTNAMES[@]} -ne 1 ] && [[ "${HYPERVISOR_HOSTNAMES[0]}" == "" ]]; then
+if [ ${#HYPERVISOR_HOSTNAMES[@]} -lt 2 ] && [[ "${HYPERVISOR_HOSTNAMES[0]}" == "" ]] && [ ${#VM_NAMES[@]} -ge 1 ] && [[ "${VM_NAMES[0]}" != "" ]]; then
   echo "[hypervisors] is empty, inferring hostnames from [vms]"
   get_hypervisor_hostnames
 fi
@@ -151,11 +151,11 @@ tf_plan_prod() {
 }
 
 tf_apply_dev() {
-  cd ~/Projects/nevron-handle/tf/envs/dev && terraform apply
+  cd ~/Projects/nevron-handle/tf/envs/dev && terraform apply -auto-approve
 }
 
 tf_apply_prod() {
-  cd ~/Projects/nevron-handle/tf/envs/prod && terraform apply
+  cd ~/Projects/nevron-handle/tf/envs/prod && terraform apply -auto-approve
 }
 
 tf_destroy_dev() {
@@ -320,9 +320,9 @@ hypervisor_safe_to_shutdown() {
   local running_vms
   # TODO: Policy change so ivar can do this
   # instead of admin
-  source api/admin-openrc
+  source ~/api/admin-openrc
   running_vms=$(openstack server list --all-projects --host "$hypervisor_name" -f value -c Name -c Status | grep -v SHUTOFF)
-  source api/ivar-openrc
+  source ~/api/ivar-openrc
 
   if [[ -n "$running_vms" ]]; then
     echo "⚠️  Hypervisor $hypervisor_name still has active VMs:"
