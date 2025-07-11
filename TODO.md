@@ -1,0 +1,1 @@
+* Shutdown for non-hypervisors
