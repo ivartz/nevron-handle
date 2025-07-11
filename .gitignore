@@ -1,5 +1,7 @@
 # Ignore swp file from vim having file open
-.nevron-handle.sh.swp
+.*.swp
+tf/envs/**/.*.swp
+tf/modules/**/.*.swp
 
 # Ignore all Terraform build artifacts and sensitive files in all environments
 tf/envs/**/.terraform/
