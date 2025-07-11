@@ -1,1 +1,1 @@
-cp -v nevron-handle.sh ~/.local/bin
+cp -v $(dirname ${0})/nevron-handle.sh ~/.local/bin
