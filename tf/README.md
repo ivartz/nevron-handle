@@ -1,8 +1,15 @@
-# Terraform environments for OpenStack
+## Deploy
+```bash
+cd envs/<env>
+<terraform init>
+terraform plan/apply
+```
 
-## Hypervisor Flavor Deployment Compatibility Matrix
+## Environments (envs)
 
-### compute-01,2,3,4
+### Hypervisor Flavor Deployment Compatibility Matrix
+
+#### compute-01,2,3,4
 
 ```
 n1.micro  m1.tiny   n1.small  n1.medium n1.large  n1.work1  n1.work2  n1.max tf-env  verified
