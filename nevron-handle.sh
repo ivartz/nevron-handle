@@ -25,6 +25,7 @@ run_tasks_on_vms
 stop_vms
 snapshot_vms
 shelve_vms
+suspend_hypervisors
 shutdown_hypervisors
 EOF
 
@@ -281,14 +282,14 @@ snapshot_vms() {
   done
 }
 
-wait_for_poweroff() {
+wait_for_failed_ping() {
   local hostname="$1"
   local max_attempts=30
   local delay=10
   local success_count=0
   local required_successes=2  # Require 2 consistent failures
 
-  echo "Waiting for $hostname to fully power off..."
+  echo "Waiting for $hostname to not respond to ping..."
 
   for ((i=1; i<=max_attempts; i++)); do
     if ping -c1 -W1 "$hostname" &>/dev/null; then
@@ -298,14 +299,13 @@ wait_for_poweroff() {
       ((success_count++))
       echo "[$i/$max_attempts] Ping failed ($success_count/$required_successes)"
       if ((success_count >= required_successes)); then
-        echo "$hostname appears to be powered off."
         return 0
       fi
     fi
     sleep "$delay"
   done
 
-  echo "WARNING: Timeout waiting for $hostname to shut down"
+  echo "WARNING: Timeout waiting for $hostname to stop responding to ping"
   return 1
 }
 
@@ -323,7 +323,7 @@ shelve_vms() {
   done
 }
 
-hypervisor_safe_to_shutdown() {
+hypervisor_empty() {
   local hypervisor_name="$1"
 
   # List VMs on this hypervisor with their statuses
@@ -344,9 +344,24 @@ hypervisor_safe_to_shutdown() {
   fi
 }
 
+suspend_hypervisors() {
+  for NAME in "${HYPERVISOR_HOSTNAMES[@]}"; do
+    if hypervisor_empty "$NAME"; then
+
+      echo "Suspending hypervisor $NAME..."
+      ssh "$NAME" "sudo systemctl suspend" || echo "Failed to issue suspend to $NAME (already down?)"
+
+      wait_for_failed_ping "$NAME"
+    else
+      echo "Skipping suspend of $NAME – it still has active VMs."
+    fi
+
+  done
+}
+
 shutdown_hypervisors() {
   for NAME in "${HYPERVISOR_HOSTNAMES[@]}"; do
-    if hypervisor_safe_to_shutdown "$NAME"; then
+    if hypervisor_empty "$NAME"; then
       echo "Stopping OpenStack and libvirt services on hypervisor $NAME..."
 
       ssh "$NAME" "set -e; sudo systemctl stop nova-compute; sudo systemctl stop neutron-openvswitch-agent; sudo systemctl stop libvirtd"
@@ -354,7 +369,7 @@ shutdown_hypervisors() {
       echo "Services stopped on $NAME. Now shutting down hypervisor..."
       ssh "$NAME" "sudo systemctl poweroff" || echo "Failed to issue poweroff to $NAME (already down?)"
 
-      wait_for_poweroff "$NAME"
+      wait_for_failed_ping "$NAME"
     else
       echo "Skipping shutdown of $NAME – it still has active VMs."
     fi
