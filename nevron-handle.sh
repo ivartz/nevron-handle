@@ -99,6 +99,16 @@ wake_and_wait() {
     done
 
     echo "$NAME is online."
+
+    echo "Waiting for $NAME (nova-compute) to report UP..."
+    until state=$(openstack compute service list --host "$NAME" -f value -c Binary -c State | grep nova-compute | awk '{print $2}') \
+         && [[ "$state" == "up" ]]; do
+      echo "Current state: ${state:-unknown}, retrying..."
+      sleep 5
+    done
+
+    echo "$NAME is UP ✅"
+
   done
 }
 
