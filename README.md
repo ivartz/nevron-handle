@@ -1,2 +1,2 @@
 # nevron-handle
-Tools to handle Nevron Openstack cluster
+Tools to handle Nevron OpenStack cluster
