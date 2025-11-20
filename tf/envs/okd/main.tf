@@ -9,10 +9,11 @@ terraform {
 
 provider "openstack" {}
 
-resource "openstack_compute_instance_v2" "test-server" {
-  name = "test-server"
+resource "openstack_compute_instance_v2" "large" {
+  count = 1
+  name = format("large-%02d", count.index + 1)
   image_name = "Ubuntu 22.04"
-  flavor_name = "m1.small"
+  flavor_name = "n2.openshiftcontroller"
 
   config_drive = true
 
